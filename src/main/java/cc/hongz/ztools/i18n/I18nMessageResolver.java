@@ -116,6 +116,29 @@ public class I18nMessageResolver {
     }
 
     /**
+     * 解析 Accept-Language 请求头为 Locale.
+     * <p>
+     * 取优先级最高的语言标签（忽略 q 权重与通配符），
+     * 例如 {@code "zh-CN,zh;q=0.9,en;q=0.8"} → {@code zh_CN}。
+     * </p>
+     *
+     * @param acceptLanguage Accept-Language 请求头
+     * @return 优先级最高的 Locale，无法解析时返回 {@link Locale#getDefault()}
+     */
+    public static Locale parseAcceptLanguage(final String acceptLanguage) {
+        if (acceptLanguage == null || acceptLanguage.isBlank()) {
+            return Locale.getDefault();
+        }
+        for (final String range : acceptLanguage.split(",")) {
+            final String tag = range.split(";")[0].trim();
+            if (!tag.isEmpty() && !"*".equals(tag)) {
+                return Locale.forLanguageTag(tag);
+            }
+        }
+        return Locale.getDefault();
+    }
+
+    /**
      * 格式化消息（替换占位符）.
      *
      * @param message 消息模板
